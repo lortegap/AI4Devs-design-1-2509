@@ -1,0 +1,49 @@
+@startuml ACT_Publicar_Vacante
+title Flujo: Publicar Vacante
+start
+partition Reclutador {
+  :Crear requisición de vacante;
+  :Capturar título, descripción, requisitos, fecha cierre;
+  :Guardar borrador;
+}
+partition Sistema {
+  if ("Validación de campos obligatorios") then (OK)
+    :Asignar ID de vacante;
+  else (Falla)
+    :Mostrar errores de validación;
+    stop
+  endif
+}
+partition HR_Manager {
+  :Revisar requisición;
+  if ("¿Aprobar requisición?") then (Sí)
+    :Aprobar requisición;
+  else (No)
+    :Rechazar y devolver comentarios;
+    stop
+  endif
+}
+partition Sistema {
+  :Estado = "Aprobada";
+  :Generar URL de vacante en portal interno;
+}
+partition Reclutador {
+  :Seleccionar fuentes externas (portales/redes);
+  :Confirmar publicación;
+}
+partition Sistema {
+  fork
+    :Publicar en Portal Interno;
+    :Notificar a reclutador;
+  fork again
+    :Enviar a Portales Externos (API);
+    if ("¿Respuesta 200 de portales?") then (Sí)
+      :Registrar IDs remotos;
+    else (No)
+      :Registrar error e intento de reenvío;
+    endif
+  end fork
+  :Estado = "Publicada";
+}
+stop
+@enduml

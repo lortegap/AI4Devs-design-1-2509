@@ -1,0 +1,31 @@
+
+@startuml ATS_UseCases_Integraciones
+left to right direction
+skinparam actorStyle awesome
+
+actor "Servicios de Portales de Empleo" as Portales
+actor "Calendarios (Google/Outlook)" as Cals
+actor "HRM/ERP/Nómina" as HRM
+actor "Firma Electrónica" as Firma
+actor "Proveedor de Pruebas" as Pruebas
+
+rectangle "Módulo: Integraciones" {
+  (Publicación en Portales) as UC_PubPortales
+  (Recepción de Aplicaciones) as UC_RecvApps
+  (Sincronizar Calendarios) as UC_SyncCal
+  (Alta de Contratado en HRM/ERP) as UC_AltaHRM
+  (Envío de Contrato a Firma) as UC_Firma
+  (Asignación y Recepción de Resultados de Pruebas) as UC_Pruebas
+}
+
+Portales --> UC_PubPortales
+Portales --> UC_RecvApps
+Cals --> UC_SyncCal
+HRM --> UC_AltaHRM
+Firma --> UC_Firma
+Pruebas --> UC_Pruebas
+
+UC_PubPortales <--> UC_RecvApps
+UC_Firma .> UC_AltaHRM : <<extend>>
+
+@enduml

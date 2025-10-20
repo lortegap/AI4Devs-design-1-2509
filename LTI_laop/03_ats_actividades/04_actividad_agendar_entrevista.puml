@@ -1,0 +1,35 @@
+@startuml ACT_Agendar_Entrevista
+title Flujo: Agendar Entrevista y Capturar Feedback
+start
+partition Reclutador {
+  :Seleccionar candidato y etapa "Entrevista";
+  :Proponer slots disponibles;
+}
+partition Calendarios {
+  :Sincronizar disponibilidad (Google/Outlook);
+  :Devolver horarios libres;
+}
+partition Reclutador {
+  :Elegir horario y tipo (presencial/remota);
+  :Invitar entrevistadores;
+}
+partition Sistema {
+  :Crear evento y enviar invitaciones;
+  :Notificar a candidato con enlace/dirección;
+}
+partition Candidato {
+  :Confirmar disponibilidad;
+}
+partition Sistema {
+  :Actualizar evento en calendario;
+}
+partition Entrevistador {
+  :Realizar entrevista;
+  :Capturar feedback estructurado (score/observaciones);
+}
+partition Sistema {
+  :Guardar feedback;
+  :Disparar notificación a reclutador y jefe directo;
+}
+stop
+@enduml

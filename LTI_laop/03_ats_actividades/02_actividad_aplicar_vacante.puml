@@ -1,0 +1,34 @@
+@startuml ACT_Aplicar_Vacante
+title Flujo: Aplicar a Vacante (Candidato)
+start
+partition Candidato {
+  :Abrir enlace de vacante;
+  :Llenar formulario;
+  :Adjuntar CV (PDF/DOCX);
+  :Aceptar Aviso de Privacidad / Consentimiento;
+  :Enviar postulación;
+}
+partition Sistema {
+  if ("¿Archivo válido y <= tamaño permitido?") then (Sí)
+    :Parsear metadatos básicos (opcional);
+  else (No)
+    :Mostrar error de formato/tamaño;
+    stop
+  endif
+  if ("¿Candidato duplicado?") then (Sí)
+    :Unir con perfil existente;
+  else (No)
+    :Crear perfil de candidato;
+  endif
+  :Crear postulación a la vacante;
+  :Estado = "Recibida";
+  :Disparar evento de notificación;
+}
+partition Servicio_Correo {
+  :Enviar confirmación al candidato;
+}
+partition Reclutador {
+  :Recibir alerta nueva postulación;
+}
+stop
+@enduml

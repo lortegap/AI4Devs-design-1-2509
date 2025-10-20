@@ -1,0 +1,48 @@
+
+@startuml ATS_UseCases_ProcesoSeleccion
+left to right direction
+skinparam actorStyle awesome
+
+actor "Reclutador" as Rec
+actor "Jefe Directo" as JD
+actor "Candidato" as Cand
+actor "Proveedor de Pruebas" as ProvPruebas
+actor "Calendarios Externos" as Cal
+
+rectangle "Módulo: Proceso de Selección (Pipeline)" {
+  (Pre-filtro / Screening) as UC_Screen
+  (Mover de Etapa) as UC_Mover
+  (Agendar Entrevista) as UC_Agendar
+  (Registrar Feedback) as UC_Feedback
+  (Solicitar Pruebas) as UC_Pruebas
+  (Emitir Oferta) as UC_Oferta
+  (Aceptar/Rechazar Oferta) as UC_Decision
+  (Alta en HRM/Onboarding) as UC_AltaHRM
+  (Notificaciones) as UC_Notif
+  (Bitácora / Log de Actividad) as UC_Log
+}
+
+Rec --> UC_Screen
+Rec --> UC_Mover
+Rec --> UC_Agendar
+Rec --> UC_Feedback
+Rec --> UC_Pruebas
+Rec --> UC_Oferta
+JD --> UC_Feedback
+JD --> UC_Oferta
+Cand --> UC_Decision
+
+ProvPruebas --> UC_Pruebas
+Cal --> UC_Agendar
+
+UC_Mover .> UC_Notif : <<include>>
+UC_Agendar .> UC_Notif : <<include>>
+UC_Feedback .> UC_Notif : <<include>>
+UC_Pruebas .> UC_Notif : <<include>>
+UC_Oferta .> UC_Notif : <<include>>
+
+UC_Oferta .> UC_Decision : <<include>>
+UC_Decision .> UC_AltaHRM : <<extend>>
+UC_Mover .> UC_Log : <<include>>
+
+@enduml

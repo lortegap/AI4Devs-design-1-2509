@@ -1,0 +1,38 @@
+
+@startuml ATS_UseCases_ComunicacionPortal
+left to right direction
+skinparam actorStyle awesome
+
+actor "Candidato" as Cand
+actor "Reclutador" as Rec
+actor "Servicio de Email/SMS" as Comm
+
+rectangle "Módulo: Comunicación & Portal Candidato" {
+  (Enviar Confirmación de Postulación) as UC_Confirm
+  (Enviar Actualizaciones de Etapa) as UC_Update
+  (Enviar Invitación a Entrevista) as UC_Invit
+  (Enviar Resultado Final) as UC_Resultado
+  (Gestionar Plantillas y Firma) as UC_Plantillas
+  (Portal Candidato: Ver Estatus) as UC_Portal
+  (Portal Candidato: Autogestión de Datos) as UC_SelfService
+  (Consentimiento / Aviso de Privacidad) as UC_Consent
+}
+
+Rec --> UC_Plantillas
+Rec --> UC_Update
+Rec --> UC_Invit
+Rec --> UC_Resultado
+Cand --> UC_Portal
+Cand --> UC_SelfService
+Cand --> UC_Consent
+Comm --> UC_Confirm
+Comm --> UC_Update
+Comm --> UC_Invit
+Comm --> UC_Resultado
+
+UC_Confirm <|-- UC_Update
+UC_Update <|-- UC_Invit
+UC_Resultado .> UC_Plantillas : <<include>>
+UC_Update .> UC_Plantillas : <<include>>
+
+@enduml

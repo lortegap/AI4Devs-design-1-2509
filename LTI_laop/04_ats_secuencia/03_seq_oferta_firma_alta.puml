@@ -1,0 +1,40 @@
+@startuml SEQ_Oferta_Firma_Alta
+title Secuencia: Oferta → Firma Electrónica → Alta en HRM/ERP
+
+actor "Reclutador" as R
+participant "Web ATS (Frontend)" as FE
+participant "API ATS (Backend)" as BE
+database "DB ATS" as DB
+participant "Servicio Firma (e.g., DocuSign)" as Sign
+actor "Candidato" as C
+participant "HRM/ERP" as HRM
+participant "Servicio Correo" as Mail
+
+R -> FE : Preparar oferta (salario, fecha ingreso, etc.)
+FE -> BE : POST /ofertas (candidato_id, términos)
+BE -> DB : INSERT oferta (estado="borrador")
+BE --> FE : Oferta creada
+
+R -> FE : Enviar a firma
+FE -> BE : POST /ofertas/{id}/enviar-firma
+BE -> Sign : Crear sobre y enviar a candidato
+Sign --> C : Solicitud de firma
+
+alt Candidato firma
+  C -> Sign : Firma electrónica
+  Sign -> BE : Webhook callback (oferta firmada)
+  BE -> DB : UPDATE oferta (estado="firmada")
+  BE -> Mail : Notificar a reclutador
+  Mail --> R : Email: oferta firmada
+  BE -> HRM : POST /empleados (datos candidato + oferta)
+  HRM --> BE : 201 Created (número de empleado)
+  BE -> DB : UPDATE candidato (número empleado), cerrar vacante
+  BE --> FE : Alta confirmada y vacante cerrada
+else Expira o rechaza
+  Sign -> BE : Webhook (expirada/rechazada)
+  BE -> DB : UPDATE oferta (estado="expirada/rechazada")
+  BE -> Mail : Notificación de estado
+  Mail --> R : Email: oferta no firmada
+end
+
+@enduml

@@ -1,0 +1,25 @@
+@startuml ACT_Reportes_KPIs
+title Flujo: Cálculo de KPIs (Tiempo de Cobertura)
+start
+partition Sistema {
+  :Recolectar datos de vacantes (fecha apertura/cierre);
+  :Recolectar eventos de etapas por candidato;
+  :Calcular métricas por periodo (semanal/mensual);
+  if ("¿Datos incompletos?") then (Sí)
+    :Marcar registros con warnings;
+  else (No)
+    :Continuar;
+  endif
+  :Generar dashboard y tablas;
+}
+partition HR_Manager {
+  :Consultar reportes;
+  :Exportar a Excel/CSV;
+  if ("¿Identifica cuellos de botella?") then (Sí)
+    :Solicitar acciones de mejora;
+  else (No)
+    :Mantener monitoreo;
+  endif
+}
+stop
+@enduml

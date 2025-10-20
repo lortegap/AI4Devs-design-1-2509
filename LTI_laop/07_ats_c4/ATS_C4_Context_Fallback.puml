@@ -1,0 +1,84 @@
+
+@startuml ATS_C4_Context_Fallback
+title C4-Context (Fallback) - ATS
+
+skinparam rectangle {
+  BackgroundColor White
+  BorderColor Black
+}
+left to right direction
+
+' Actores
+actor "Candidato"
+actor "Reclutador"
+actor "HR Manager"
+actor "Jefe Directo"
+actor "Admin"
+
+' Sistema principal y contenedores a alto nivel (estilo fallback con rectangles)
+rectangle "ATS" {
+  rectangle "Candidate Portal (SPA)" as CandPortal
+  rectangle "Recruiter Console (SPA)" as RecConsole
+
+  rectangle "Servicios de Dominio" as Domain {
+    rectangle "Vacantes"
+    rectangle "Pipeline/Entrevistas"
+    rectangle "Candidatos"
+    rectangle "Ofertas/Firma"
+    rectangle "Notificaciones"
+    rectangle "Integraciones"
+  }
+
+  database "SQL Server"
+  rectangle "Object Storage (S3)"
+  rectangle "Search Engine"
+  rectangle "Broker Mensajería"
+}
+
+' Sistemas externos
+rectangle "Portales de Empleo" as EXT1
+rectangle "Calendarios" as EXT2
+rectangle "Firma Electrónica" as EXT3
+rectangle "HRM/ERP/Nómina" as EXT4
+rectangle "Email/SMS" as EXT5
+
+' Relaciones de actores con UIs
+"Candidato" --> CandPortal
+"Reclutador" --> RecConsole
+"HR Manager" --> RecConsole
+"Jefe Directo" --> RecConsole
+"Admin" --> RecConsole
+
+' Relaciones UI -> Dominios principales
+CandPortal --> "Vacantes"
+CandPortal --> "Candidatos"
+RecConsole --> "Vacantes"
+RecConsole --> "Pipeline/Entrevistas"
+RecConsole --> "Candidatos"
+RecConsole --> "Ofertas/Firma"
+
+' Persistencia y componentes internos
+"Vacantes" --> "SQL Server"
+"Pipeline/Entrevistas" --> "SQL Server"
+"Candidatos" --> "SQL Server"
+"Ofertas/Firma" --> "SQL Server"
+"Notificaciones" --> "SQL Server"
+"Integraciones" --> "SQL Server"
+"Candidatos" --> "Object Storage (S3)"
+"Vacantes" --> "Search Engine"
+
+' Mensajería / eventos
+"Vacantes" --> "Broker Mensajería"
+"Pipeline/Entrevistas" --> "Broker Mensajería"
+"Candidatos" --> "Broker Mensajería"
+"Ofertas/Firma" --> "Broker Mensajería"
+"Broker Mensajería" --> "Notificaciones"
+"Broker Mensajería" --> "Integraciones"
+
+' Integraciones externas
+"Integraciones" --> EXT1
+"Integraciones" --> EXT2
+"Ofertas/Firma" --> EXT3
+"Ofertas/Firma" --> EXT4
+"Notificaciones" --> EXT5
+@enduml

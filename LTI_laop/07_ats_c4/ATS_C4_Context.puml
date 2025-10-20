@@ -1,0 +1,37 @@
+@startuml ATS_C4_Context
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+LAYOUT_WITH_LEGEND()
+
+Person(candidato, "Candidato", "Postula a vacantes y da seguimiento a su proceso")
+Person(reclutador, "Reclutador", "Gestiona vacantes, pipeline, entrevistas y ofertas")
+Person(hrmngr, "HR Manager", "Consulta KPIs y asegura cumplimiento")
+Person(jefe, "Jefe Directo", "Participa en entrevistas y aprobación de oferta")
+Person(admin, "Admin", "Administra catálogos, seguridad y configuraciones")
+
+System_Boundary(ats, "ATS") {
+  System(candPortal, "Candidate Portal", "Búsqueda/aplicación, estatus, autogestión")
+  System(recConsole, "Recruiter Console", "Vacantes, pipeline, entrevistas, reportes")
+  System(backend, "Servicios de Dominio", "Lógica de negocio del ATS")
+}
+
+System_Ext(portales, "Portales de empleo", "Publicación/recepción de vacantes y candidatos")
+System_Ext(cal, "Calendario corporativo", "Agenda y salas")
+System_Ext(firma, "Firma electrónica", "Flujos de firma de ofertas")
+System_Ext(hrm, "HR/ERP", "Alta de empleados")
+System_Ext(comm, "Email/SMS provider", "Entrega de notificaciones")
+
+' Relaciones ejemplo (ajústalas a tu modelo real)
+Rel(candidato, candPortal, "Aplica y consulta estatus")
+Rel(reclutador, recConsole, "Gestiona vacantes")
+Rel(hrmngr, recConsole, "Consulta KPIs")
+Rel(jefe, recConsole, "Participa en entrevistas/aprobación")
+Rel(admin, recConsole, "Administra configuración")
+
+Rel(backend, portales, "Publica/recibe")
+Rel(backend, cal, "Crea/consulta eventos")
+Rel(backend, firma, "Envía sobre / recibe callback")
+Rel(backend, hrm, "Alta de empleado")
+Rel(backend, comm, "Solicita envío de correos/SMS")
+
+SHOW_LEGEND()
+@enduml

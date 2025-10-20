@@ -1,0 +1,39 @@
+@startuml ACT_Oferta_Firma_Alta
+title Flujo: Emitir Oferta → Firma Electrónica → Alta en HRM/ERP
+start
+partition Reclutador {
+  :Preparar propuesta económica y documento de oferta;
+}
+partition Sistema {
+  :Validar plantilla y campos obligatorios;
+}
+partition Jefe_Directo {
+  :Aprobar condiciones de la oferta;
+}
+partition Sistema {
+  :Enviar documento a proveedor de firma;
+}
+partition Proveedor_Firma {
+  :Solicitar firma al candidato;
+  if ("¿Candidato firmó?") then (Sí)
+    :Emitir documento firmado;
+  else (No)
+    :Recordatorio / Expirar oferta;
+    stop
+  endif
+}
+partition Sistema {
+  :Recibir callback con documento firmado;
+  :Actualizar estado = "Ofertado/Firmado";
+  :Generar paquete de alta;
+}
+partition HRM_ERP {
+  :Crear empleado (datos personales, puesto, salario);
+  :Asignar número de empleado;
+}
+partition Sistema {
+  :Confirmar alta y cerrar vacante;
+  :Disparar onboarding (opcional);
+}
+stop
+@enduml

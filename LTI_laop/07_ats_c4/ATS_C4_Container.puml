@@ -1,0 +1,90 @@
+
+@startuml ATS_C4_Container
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+LAYOUT_WITH_LEGEND()
+
+Person(candidato, "Candidato")
+Person(reclutador, "Reclutador")
+Person(hrmngr, "HR Manager")
+Person(jefe, "Jefe Directo")
+Person(admin, "Admin")
+
+' Sistema ATS y contenedores
+System_Boundary(ats, "ATS") {
+  Container(candPortal, "Candidate Portal", "React/Vue SPA", "UI candidatos")
+  Container(recConsole, "Recruiter Console", "React/Vue SPA", "UI reclutadores/HR")
+
+  Container_Boundary(api, "API Gateway/BFF") {
+    Container(apiSvc, "API Service", "Java/NestJS", "Auth, rate limiting, routing")
+  }
+
+  Container_Boundary(services, "Servicios de Dominio") {
+    Container(sVac, "Vacantes", "Java/NestJS", "CRUD + publicación")
+    Container(sCand, "Candidatos", "Java/NestJS", "Perfiles, CV, consentimiento")
+    Container(sPipe, "Pipeline/Entrevistas", "Java/NestJS", "Etapas, agenda, feedback")
+    Container(sOfe, "Ofertas/Firma", "Java/NestJS", "Ofertas y firma")
+    Container(sNotif, "Notificaciones", "Java/NestJS", "Email/SMS/Webhooks")
+    Container(sInteg, "Integraciones", "Java/NestJS", "Portales, Calendarios, HRM/ERP, Firma")
+    Container(sRep, "Reportes", "Java/NestJS", "KPIs operacionales")
+  }
+
+  ContainerDb(db, "SQL Server", "Relacional", "Datos transaccionales")
+  ContainerDb(storage, "Object Storage", "S3-compatible", "CV y documentos")
+  ContainerDb(search, "Search Engine", "Elastic/OpenSearch", "Índices texto completo")
+  Container(mq, "Broker Mensajería", "Kafka/RabbitMQ", "Eventos y trabajos asíncronos")
+
+}
+
+' Sistemas externos
+System_Ext(portales, "Portales de Empleo")
+System_Ext(cal, "Calendarios (Google/Outlook)")
+System_Ext(firma, "Firma Electrónica")
+System_Ext(hrm, "HRM/ERP/Nómina")
+System_Ext(comm, "Email/SMS")
+
+' Relaciones de actores con UIs
+Rel(candidato, candPortal, "Usa")
+Rel(reclutador, recConsole, "Usa")
+Rel(hrmngr, recConsole, "Usa")
+Rel(jefe, recConsole, "Usa")
+Rel(admin, recConsole, "Admin")
+
+' Relaciones UI -> BFF -> Servicios
+Rel(candPortal, apiSvc, "HTTPS")
+Rel(recConsole, apiSvc, "HTTPS")
+
+Rel(apiSvc, sVac, "REST/gRPC")
+Rel(apiSvc, sCand, "REST/gRPC")
+Rel(apiSvc, sPipe, "REST/gRPC")
+Rel(apiSvc, sOfe, "REST/gRPC")
+Rel(apiSvc, sNotif, "REST/gRPC")
+Rel(apiSvc, sInteg, "REST/gRPC")
+Rel(apiSvc, sRep, "REST/gRPC")
+
+' Persistencia
+Rel(sVac, db, "CRUD")
+Rel(sCand, db, "CRUD")
+Rel(sPipe, db, "CRUD")
+Rel(sOfe, db, "CRUD")
+Rel(sRep, db, "Lecturas/reportes")
+Rel(sCand, storage, "Guardar/leer CV")
+Rel(sCand, search, "Indexar/consultar perfiles")
+Rel(sVac, search, "Indexar/consultar vacantes")
+
+' Mensajería / eventos
+Rel(sCand, mq, "AplicaciónRecibida")
+Rel(sPipe, mq, "CambioEtapa")
+Rel(sVac, mq, "VacantePublicada")
+Rel(sOfe, mq, "OfertaFirmada")
+Rel(mq, sNotif, "Dispara envíos/reintentos")
+Rel(mq, sInteg, "Ejecuta integraciones")
+
+' Integraciones externas
+Rel(sInteg, portales, "Publicación/recepción")
+Rel(sInteg, cal, "Eventos de calendario")
+Rel(sOfe, firma, "Sobres a firma / callbacks")
+Rel(sOfe, hrm, "Alta empleado")
+Rel(sNotif, comm, "Correos/SMS")
+
+SHOW_LEGEND()
+@enduml

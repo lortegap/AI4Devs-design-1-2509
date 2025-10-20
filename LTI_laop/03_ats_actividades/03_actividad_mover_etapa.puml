@@ -1,0 +1,29 @@
+@startuml ACT_Mover_Etapa
+title Flujo: Mover Candidato de Etapa con Notificaciones
+start
+partition Reclutador {
+  :Abrir Kanban del proceso;
+  :Arrastrar tarjeta a nueva etapa;
+  :Agregar comentarios opcionales;
+}
+partition Sistema {
+  :Registrar cambio de etapa en bitácora;
+  if ("¿Reglas de validación de etapa?") then (Cumple)
+    :Actualizar estado/etapa;
+  else (No cumple)
+    :Revertir movimiento y mostrar error;
+    stop
+  endif
+  :Evaluar disparadores de comunicación;
+}
+fork
+  partition Servicio_Correo {
+    :Enviar correo al candidato con nuevo estatus;
+  }
+fork again
+  partition Integraciones {
+    :Actualizar métricas en tiempo real;
+  }
+end fork
+stop
+@enduml

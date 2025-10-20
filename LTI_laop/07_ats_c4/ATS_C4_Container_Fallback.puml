@@ -1,0 +1,77 @@
+
+@startuml ATS_C4_Container_Fallback
+title C4-Container (Fallback) - ATS
+skinparam rectangle {
+  BackgroundColor White
+  BorderColor Black
+}
+left to right direction
+
+actor "Candidato"
+actor "Reclutador"
+actor "HR Manager"
+actor "Jefe Directo"
+actor "Admin"
+
+rectangle "ATS" {
+  rectangle "Candidate Portal (React)" as FE1
+  rectangle "Recruiter Console (React)" as FE2
+  rectangle "API Gateway/BFF (Java)" as API
+  rectangle "Servicios" {
+    rectangle "Vacantes" as S1
+    rectangle "Candidatos" as S2
+    rectangle "Pipeline/Entrevistas" as S3
+    rectangle "Ofertas/Firma" as S4
+    rectangle "Notificaciones" as S5
+    rectangle "Integraciones" as S6
+    rectangle "Reportes" as S7
+  }
+  database "SQL Server" as DB
+  rectangle "Object Storage (S3)" as OBJ
+  rectangle "Search Engine" as SE
+  rectangle "Broker Mensajería" as MQ
+}
+
+rectangle "Portales de Empleo" as EXT1
+rectangle "Calendarios" as EXT2
+rectangle "Firma Electrónica" as EXT3
+rectangle "HRM/ERP/Nómina" as EXT4
+rectangle "Email/SMS" as EXT5
+
+"Candidato" --> FE1
+"Reclutador" --> FE2
+"HR Manager" --> FE2
+"Jefe Directo" --> FE2
+"Admin" --> FE2
+
+FE1 --> API
+FE2 --> API
+API --> S1
+API --> S2
+API --> S3
+API --> S4
+API --> S5
+API --> S6
+API --> S7
+
+S1 --> DB
+S2 --> DB
+S3 --> DB
+S4 --> DB
+S7 --> DB
+S2 --> OBJ
+S2 --> SE
+S1 --> SE
+S2 --> MQ
+S3 --> MQ
+S1 --> MQ
+S4 --> MQ
+MQ --> S5
+MQ --> S6
+
+S6 --> EXT1
+S6 --> EXT2
+S4 --> EXT3
+S4 --> EXT4
+S5 --> EXT5
+@enduml

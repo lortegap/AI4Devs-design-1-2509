@@ -1,0 +1,207 @@
+@startuml ATS_ERD
+!theme plain
+
+hide methods
+hide stereotypes
+
+skinparam entity  {
+  BackgroundColor White
+  ArrowColor Black
+  BorderColor Black
+}
+
+' Entidades principales
+entity  roles {
+              +rol_id: INTEGER <<PK>>
+              +nombre: NVARCHAR(100) <<UQ>>
+              +activo: BIT 
+              }
+entity  usuarios { 
+                +usuario_id: BIGINT <<PK>>
+                +nombre_completo: NVARCHAR(150)
+                +email: NVARCHAR(255) <<UQ>>
+                +rol_id: BIGINT <<FK>>
+                +activo: BIT 
+                }
+entity  departamentos { 
+                      +departamento_id: BIGINT <<PK>>
+                      +nombre: NVARCHAR(120) <<UQ>> 
+                      }
+entity  puestos { 
+                +puesto_id: BIGINT <<PK>>
+                +nombre: NVARCHAR(120)
+                +departamento_id: BIGINT <<FK>> 
+                }
+entity  ubicaciones { 
+                    +ubicacion_id: BIGINT <<PK>>
+                    +pais: NVARCHAR(100)
+                    +estado: NVARCHAR(100)
+                    +ciudad: NVARCHAR(120) 
+                    }
+entity  vacantes { 
+                +vacante_id: BIGINT <<PK>>
+                +codigo: NVARCHAR(30) <<UQ>>
+                +titulo: NVARCHAR(150)
+                +reclutador_id: BIGINT <<FK>>
+                +departamento_id: BIGINT <<FK>>
+                +puesto_id: BIGINT <<FK>>
+                +ubicacion_id: BIGINT <<FK>>
+                +estado: NVARCHAR(30) 
+                }
+entity  requisiciones { 
+                      +requisicion_id: BIGINT <<PK>>
+                      +vacante_id: BIGINT <<FK>> <<UQ>>
+                      +solicitante_id: BIGINT <<FK>>
+                      +estatus: NVARCHAR(30) 
+                      }
+entity  candidatos { 
+                    +candidato_id: BIGINT <<PK>>
+                    +nombre: NVARCHAR(120)
+                    +apellidos: NVARCHAR(150)
+                    +email: NVARCHAR(255) <<UQ>>
+                    +ubicacion_id: BIGINT <<FK>>
+                    +fuente_id: BIGINT <<FK>> 
+                    }
+entity  consentimientos {
+                        +consentimiento_id: BIGINT <<PK>>
+                        +candidato_id: BIGINT <<FK>>
+                        +acepta_tratamiento: BIT 
+                        }
+entity  fuentes { 
+                +fuente_id: BIGINT <<PK>>
+                +nombre: NVARCHAR(80) <<UQ>> 
+                }
+entity  documentos { 
+                  +documento_id: BIGINT <<PK>>
+                  +candidato_id: BIGINT <<FK>>
+                  +tipo: NVARCHAR(50) 
+                  }
+entity  habilidades { 
+                    +habilidad_id: BIGINT <<PK>>
+                    +nombre: NVARCHAR(80) <<UQ>> 
+                    }
+entity  candidato_habilidad { 
+                            +candidato_id: BIGINT <<FK>>
+                            +habilidad_id: BIGINT <<FK>>
+                            +nivel: TINYINT 
+                            }
+entity  idiomas { 
+                +idioma_id: BIGINT <<PK>>
+                +nombre: NVARCHAR(80) <<UQ>> 
+                }
+entity  candidato_idioma { 
+                          +candidato_id: BIGINT <<FK>>
+                          +idioma_id: BIGINT <<FK>>
+                          +nivel: NVARCHAR(10) 
+                          }
+entity  aplicaciones { 
+                      +aplicacion_id: BIGINT <<PK>>
+                      +vacante_id: BIGINT <<FK>>
+                      +candidato_id: BIGINT <<FK>>
+                      +estado: NVARCHAR(30) 
+                      }
+entity  etapas { 
+                +etapa_id: BIGINT <<PK>>
+                +nombre: NVARCHAR(60)
+                +orden: INT
+                +vacante_id: BIGINT <<FK>> 
+                }
+entity  pipeline_candidato { 
+                            +pipeline_id: BIGINT <<PK>>
+                            +aplicacion_id: BIGINT <<FK>> <<UQ>>
+                            +etapa_actual_id: BIGINT <<FK>> 
+                            }
+entity  movimientos_pipeline { 
+                              +movimiento_id: BIGINT <<PK>>
+                              +pipeline_id: BIGINT <<FK>>
+                              +etapa_origen_id: BIGINT <<FK>>
+                              +etapa_destino_id: BIGINT <<FK>>
+                              +cambiado_por: BIGINT <<FK>> 
+                              }
+entity  entrevistas { 
+                      +entrevista_id: BIGINT <<PK>>
+                      +aplicacion_id: BIGINT <<FK>>
+                      +estado: NVARCHAR(30) 
+                      }
+entity  entrevistadores { 
+                          +entrevista_id: BIGINT <<FK>>
+                          +usuario_id: BIGINT <<FK>> 
+                          }
+entity  feedback_entrevista { 
+                              +feedback_id: BIGINT <<PK>>
+                              +entrevista_id: BIGINT <<FK>>
+                              +evaluador_id: BIGINT <<FK>> 
+                              }
+entity  pruebas { 
+                  +prueba_id: BIGINT <<PK>>
+                  +aplicacion_id: BIGINT <<FK>> 
+                  }
+entity  ofertas { 
+                  +oferta_id: BIGINT <<PK>>
+                  +aplicacion_id: BIGINT <<FK>> <<UQ>>
+                  +estatus: NVARCHAR(30) 
+                  }
+entity  firmas { 
+                  +firma_id: BIGINT <<PK>>
+                  +oferta_id: BIGINT <<FK>> <<UQ>>
+                  +estatus: NVARCHAR(30) 
+                  }
+entity  portales { 
+                  +portal_id: BIGINT <<PK>>
+                  +nombre: NVARCHAR(120) <<UQ>> 
+                  }
+entity  publicaciones { 
+                        +publicacion_id: BIGINT <<PK>>
+                        +vacante_id: BIGINT <<FK>>
+                        +portal_id: BIGINT <<FK>> 
+                        }
+entity  notificaciones { 
+                          +notificacion_id: BIGINT <<PK>>
+                          +tipo: NVARCHAR(40)
+                          +referencia_tipo: NVARCHAR(40)
+                          +referencia_id: BIGINT 
+                          }
+entity  auditoria { 
+                    +auditoria_id: BIGINT <<PK>>
+                    +usuario_id: BIGINT <<FK>>
+                    +entidad: NVARCHAR(60)
+                    +entidad_id: BIGINT 
+                    +accion: NVARCHAR(30)
+                    +fecha_hora: DATETIME
+                    }
+
+' Relaciones
+usuarios --> roles : (N:1)
+puestos --> departamentos : (N:1)
+vacantes --> usuarios : reclutador (N:1)
+vacantes --> departamentos : (N:1)
+vacantes --> puestos : (N:1)
+vacantes --> ubicaciones : (N:1)
+requisiciones --> vacantes : (1:1)
+candidatos --> ubicaciones : (N:1)
+candidatos --> fuentes : (N:1)
+consentimientos --> candidatos : (N:1)
+documentos --> candidatos : (N:1)
+candidato_habilidad --> candidatos : (N:1)
+candidato_habilidad --> habilidades : (N:1)
+candidato_idioma --> candidatos : (N:1)
+candidato_idioma --> idiomas : (N:1)
+aplicaciones --> vacantes : (N:1)
+aplicaciones --> candidatos : (N:1)
+pipeline_candidato --> aplicaciones : (1:1)
+movimientos_pipeline --> pipeline_candidato : (N:1)
+movimientos_pipeline --> etapas : origen/destino (N:1)
+movimientos_pipeline --> usuarios : cambiado_por (N:1)
+entrevistas --> aplicaciones : (N:1)
+entrevistadores --> entrevistas : (N:1)
+entrevistadores --> usuarios : (N:1)
+feedback_entrevista --> entrevistas : (N:1)
+feedback_entrevista --> usuarios : evaluador (N:1)
+pruebas --> aplicaciones : (N:1)
+ofertas --> aplicaciones : (1:1)
+firmas --> ofertas : (1:1)
+publicaciones --> vacantes : (N:1)
+publicaciones --> portales : (N:1)
+auditoria --> usuarios : (N:1)
+
+@enduml

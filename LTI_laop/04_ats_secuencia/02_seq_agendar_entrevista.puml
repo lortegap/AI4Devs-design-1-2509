@@ -1,0 +1,32 @@
+
+@startuml SEQ_Agendar_Entrevista
+title Secuencia: Agendar Entrevista (Reclutador ↔ Calendarios ↔ Candidato)
+
+actor "Reclutador" as R
+participant "Web ATS (Frontend)" as FE
+participant "API ATS (Backend)" as BE
+participant "Calendario (Google/Outlook)" as CAL
+participant "Servicio Correo" as Mail
+actor "Candidato" as C
+database "DB ATS" as DB
+
+R -> FE : Abrir pipeline candidato
+FE -> BE : GET /candidatos/{id}/disponibilidad
+BE -> CAL : FreeBusy Query (reclutador/entrevistador)
+CAL --> BE : Slots disponibles
+BE --> FE : Slots sugeridos
+
+R -> FE : Seleccionar horario y tipo (remota/presencial)
+FE -> BE : POST /entrevistas (candidato_id, horario, tipo)
+BE -> CAL : Crear evento (organizer=ATS)
+CAL --> BE : ID evento / meeting link
+BE -> DB : INSERT entrevista (estado="programada", cal_id)
+BE -> Mail : Enviar invitación a candidato y entrevistadores
+Mail --> C : Invitación con link/dirección
+Mail --> R : Invitación confirmada
+
+C -> FE : Confirmar disponibilidad (opcional)
+FE -> BE : POST /entrevistas/{id}/confirmacion
+BE -> DB : UPDATE entrevista (estado="confirmada")
+
+@enduml

@@ -1,0 +1,33 @@
+
+@startuml ATS_UseCases_ReportesCumplimiento
+left to right direction
+skinparam actorStyle awesome
+
+actor "HR Manager" as HR
+actor "Reclutador" as Rec
+actor "Auditor/Legal" as Auditor
+actor "Admin del Sistema" as Adm
+
+rectangle "Módulo: Reportes & Cumplimiento" {
+  (Dashboard de KPIs) as UC_Dashboard
+  (Reportes Exportables) as UC_Reportes
+  (Trazabilidad / Log de Acciones) as UC_Log
+  (Gestión de Retención de Datos) as UC_Retencion
+  (Gestión de Consentimientos) as UC_Consent
+  (Anonimización / Eliminación) as UC_Anon
+  (Control de Accesos y Roles) as UC_RBAC
+}
+
+HR --> UC_Dashboard
+HR --> UC_Reportes
+Rec --> UC_Reportes
+Auditor --> UC_Log
+Auditor --> UC_Consent
+Adm --> UC_Retencion
+Adm --> UC_RBAC
+Adm --> UC_Anon
+
+UC_Reportes .> UC_Dashboard : <<extend>>
+UC_RBAC .> UC_Log : <<include>>
+
+@enduml

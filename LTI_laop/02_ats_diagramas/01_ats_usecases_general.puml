@@ -1,0 +1,75 @@
+
+@startuml ATS_UseCases_General
+left to right direction
+skinparam usecase {
+  BackgroundColor White
+  BorderColor Black
+  ArrowColor Black
+}
+skinparam actorStyle awesome
+
+actor "Candidato" as Cand
+actor "Reclutador" as Rec
+actor "HR Manager" as HR
+actor "Jefe Directo" as JD
+actor "Admin del Sistema" as Adm
+actor "Servicios Externos\n(Bolsas, LinkedIn, Email, Calendarios)" as Ext
+
+rectangle "ATS" {
+  (Crear Vacante) as UC_CrearVac
+  (Publicar Vacante) as UC_Publicar
+  (Integración con Portales de Empleo) as UC_IntegrarPortales
+  (Aplicar a Vacante / Enviar CV) as UC_Aplicar
+  (Importar Perfil LinkedIn/CV) as UC_Importar
+  (Buscar / Filtrar Candidatos) as UC_Buscar
+  (Gestionar Proceso de Selección\n Kanban de Etapas) as UC_Proceso
+  (Agendar Entrevista) as UC_Agendar
+  (Registrar Feedback de Entrevista) as UC_Feedback
+  (Pruebas Psicométricas/Técnicas) as UC_Pruebas
+  (Notificaciones Automáticas) as UC_Notif
+  (Portal del Candidato: Ver Estatus) as UC_Portal
+  (Reportes y Analytics) as UC_Reportes
+  (Cumplimiento y Consentimiento\n GDPR/LFPDPPP) as UC_Compliance
+  (Integración HRM/ERP/Nómina\n Onboarding/Alta) as UC_IntegracionHR
+  (Gestión de Catálogos y Seguridad) as UC_Admin
+}
+
+' Relaciones actores
+Rec --> UC_CrearVac
+Rec --> UC_Publicar
+Rec --> UC_Buscar
+Rec --> UC_Proceso
+Rec --> UC_Agendar
+Rec --> UC_Feedback
+Rec --> UC_Pruebas
+Rec --> UC_Notif
+Rec --> UC_Reportes
+
+HR --> UC_Reportes
+HR --> UC_Proceso
+HR --> UC_Compliance
+HR --> UC_IntegracionHR
+
+JD --> UC_Proceso
+JD --> UC_Feedback
+
+Cand --> UC_Aplicar
+Cand --> UC_Portal
+
+Adm --> UC_Admin
+Adm --> UC_Compliance
+
+Ext --> UC_IntegrarPortales
+Ext --> UC_Agendar
+
+' Includes / Extends
+UC_Publicar .> UC_IntegrarPortales : <<include>>
+UC_Aplicar .> UC_Importar : <<include>>
+UC_Proceso .> UC_Notif : <<include>>
+UC_Agendar .> UC_Notif : <<include>>
+UC_Feedback .> UC_Notif : <<include>>
+UC_Proceso .> UC_Pruebas : <<extend>>
+UC_Proceso .> UC_Agendar : <<include>>
+UC_IntegracionHR .> UC_Compliance : <<include>>
+
+@enduml

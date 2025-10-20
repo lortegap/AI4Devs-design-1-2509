@@ -1,0 +1,118 @@
+
+@startuml ATS_Arquitectura_AltoNivel
+title ATS - Arquitectura de Alto Nivel (Componentes)
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam packageStyle rectangle
+
+left to right direction
+
+actor "Candidato" as C
+actor "Reclutador" as R
+actor "HR Manager" as HR
+actor "Jefe Directo" as JD
+actor "Admin" as ADM
+
+rectangle "Frontends (SPA)" as FE {
+  component "Candidate Portal" as FE_Cand
+  component "Recruiter Console" as FE_Rec
+}
+
+component "API Gateway / BFF\n(Auth, Rate Limiting, TLS)" as GATE
+
+package "Servicios de Dominio (Backend)" as SVC {
+  component "Vacantes & Publicación" as S_Vac
+  component "Candidatos & Aplicaciones" as S_Cand
+  component "Pipeline & Entrevistas" as S_Pipe
+  component "Ofertas & Firma" as S_Oferta
+  component "Notificaciones" as S_Notif
+  component "Integraciones" as S_Int
+  component "Reportes/Analytics (operacional)" as S_Rep
+}
+
+package "Infra de Datos" as DATA {
+  database "SQL Server\n(Datos transaccionales)" as DB
+  component "Object Storage\n(CV/Documentos)" as OBJ
+  component "Search Engine\n(Elasticsearch/OpenSearch)" as SEARCH
+  component "Data Lake / BI\n(opcional)" as DWH
+}
+
+package "Mensajería & Jobs" as ASYNC {
+  component "Broker\n(RabbitMQ/Kafka)" as MQ
+  component "Workers\n(Envíos, Parsers, Integraciones)" as WK
+}
+
+package "Seguridad & Observabilidad" as SEC {
+  component "Auth OIDC\n(Keycloak/IdP)" as AUTH
+  component "Secret Manager" as SECRETS
+  component "Logs/Métricas/Trazas\n(ELK/Prometheus/Grafana)" as OBS
+  component "CI/CD\n(Pipelines + IaC)" as CICD
+}
+
+package "Sistemas Externos" as EXT {
+  component "Portales Empleo" as JOBBRD
+  component "Calendarios\n(Google/Outlook)" as CAL
+  component "Firma Electrónica\n(DocuSign, etc.)" as SIGN
+  component "HRM/ERP/Nómina" as HRM
+  component "Email/SMS\n(SendGrid/Twilio)" as COMM
+}
+
+' Interacciones de usuarios
+C --> FE_Cand
+R --> FE_Rec
+HR --> FE_Rec
+JD --> FE_Rec
+ADM --> FE_Rec
+
+' Frontend a API
+FE_Cand --> GATE
+FE_Rec --> GATE
+
+' API a Servicios
+GATE --> S_Vac
+GATE --> S_Cand
+GATE --> S_Pipe
+GATE --> S_Oferta
+GATE --> S_Notif
+GATE --> S_Int
+GATE --> S_Rep
+
+' Servicios a Datos
+S_Vac --> DB
+S_Cand --> DB
+S_Pipe --> DB
+S_Oferta --> DB
+S_Notif --> DB : logs/envíos
+S_Rep --> DB
+
+S_Cand --> OBJ : guardar CV/documentos
+S_Cand --> SEARCH : indexar/consultar perfiles
+S_Vac --> SEARCH : indexar/consultar vacantes
+S_Rep --> DWH : ETL/ELT (opcional)
+
+' Eventos y jobs
+S_Cand --> MQ : evento PostulaciónRecibida
+S_Pipe --> MQ : evento CambioEtapa
+S_Vac --> MQ : evento VacantePublicada
+S_Oferta --> MQ : evento OfertaFirmada
+
+MQ --> WK
+WK --> S_Notif : ejecutar envíos/reintentos
+WK --> S_Int : ejecutar integraciones
+WK --> SEARCH : reindexaciones
+
+' Seguridad/Observabilidad
+GATE --> AUTH : validar JWT/OIDC
+SVC --> SECRETS : credenciales/keys
+SVC --> OBS : logs/metrics/traces
+
+' Integraciones externas
+S_Int --> JOBBRD : publicar/retirar vacantes (API)
+S_Int --> CAL : crear eventos
+S_Oferta --> SIGN : enviar sobre a firma
+SIGN --> S_Oferta : callback estado
+S_Oferta --> HRM : alta empleado
+S_Notif --> COMM : correos/SMS
+
+@enduml

@@ -1,0 +1,32 @@
+
+@startuml ATS_UseCases_Vacantes
+left to right direction
+skinparam actorStyle awesome
+
+actor "Reclutador" as Rec
+actor "HR Manager" as HR
+actor "Servicios Externos\n(Bolsas de Trabajo)" as Portales
+
+rectangle "Módulo: Gestión de Vacantes" {
+  (Crear Vacante) as UC_Crear
+  (Editar/Clonar Vacante) as UC_Editar
+  (Publicar Vacante) as UC_Publicar
+  (Despublicar/Cerrar Vacante) as UC_Cerrar
+  (Aprobar Requisición) as UC_Aprobar
+  (Integración con Portales) as UC_Portales
+  (Definir Etapas del Proceso) as UC_DefEtapas
+}
+
+Rec --> UC_Crear
+Rec --> UC_Editar
+Rec --> UC_Publicar
+Rec --> UC_Cerrar
+HR --> UC_Aprobar
+Rec --> UC_DefEtapas
+Portales --> UC_Portales
+
+UC_Publicar .> UC_Portales : <<include>>
+UC_Crear .> UC_Aprobar : <<extend>>
+UC_Cerrar .> UC_Portales : <<extend>>
+
+@enduml

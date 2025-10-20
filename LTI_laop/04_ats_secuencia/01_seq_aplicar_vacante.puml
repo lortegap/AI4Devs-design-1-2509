@@ -1,0 +1,44 @@
+
+@startuml SEQ_Aplicar_Vacante
+title Secuencia: Aplicar a Vacante (Candidato → ATS)
+
+actor Candidato as C
+participant "Web ATS (Frontend)" as FE
+participant "API ATS (Backend)" as BE
+database "DB ATS" as DB
+participant "Servicio Correo" as Mail
+participant "Parser CV (opcional)" as Parser
+
+C -> FE : Abrir página de vacante
+FE -> BE : GET /vacantes/{id}
+BE -> DB : SELECT vacante
+DB --> BE : datos vacante
+BE --> FE : Detalles vacante
+
+C -> FE : Completar formulario + Adjuntar CV (PDF/DOCX) \n Aceptar aviso de privacidad
+
+FE -> BE : POST /aplicaciones (datos + archivo)
+BE -> BE : Validar campos & tamaño/extension
+
+alt CV válido
+  BE -> Parser : Extraer metadatos (nombre, email, skills) \n (opcional)
+  Parser --> BE : metadatos
+else CV inválido
+  BE --> FE : 400 Bad Request (error formato/tamaño)
+  return
+end
+
+BE -> DB : SELECT candidato WHERE email = ?
+alt Existe candidato
+  BE -> DB : UPDATE perfil (merge metadatos)
+else Nuevo candidato
+  BE -> DB : INSERT candidato
+end
+
+BE -> DB : INSERT aplicacion (vacante_id, candidato_id, estado="recibida")
+BE -> Mail : Enviar confirmación al candidato
+Mail --> C : Email confirmación
+
+BE --> FE : 201 Created (aplicación registrada)
+
+@enduml
